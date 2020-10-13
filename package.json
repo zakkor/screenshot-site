@@ -1,0 +1,23 @@
+{
+  "name": "screenshot-site",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zakkor/screenshot-site.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zakkor/screenshot-site/issues"
+  },
+  "homepage": "https://github.com/zakkor/screenshot-site#readme",
+  "dependencies": {
+    "playwright": "^1.4.2"
+  }
+}
