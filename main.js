@@ -9,15 +9,23 @@ const SIZES = [
 
 let websites = [
   {
-    name: 'WebsiteName',
-    url: 'https://example.com',
+    name: 'Name',
+    url: 'localhost:3000',
     pages: [
       '/',
-      '/page',
-      '/page/15',
     ]
   },
 ];
+
+let zap = [
+  '.selector',
+];
+
+let changeStyles = {
+  '.selector': {
+    flexShrink: 0,
+  }
+};
 
 (async () => {
   fs.mkdirSync('dist', { recursive: true });
@@ -25,6 +33,9 @@ let websites = [
   const browser = await firefox.launch();
   const context = await browser.newContext({ deviceScaleFactor: 3 });
   const page = await context.newPage();
+
+  // await page.exposeBinding('changeStyles', () => changeStyles);
+
   for (const size of SIZES) {
     await page.setViewportSize({ width: size.width, height: size.height });
 
@@ -33,7 +44,41 @@ let websites = [
 
       for (const p of site.pages) {
         await page.goto(`${site.url}${p}`);
-        await page.waitForTimeout(3000);
+        await page.waitForTimeout(5000);
+
+        // Remove elements by selector.
+        for (const z of zap) {
+          const handle = await page.$(z);
+          if (handle) {
+            await page.evaluateHandle(el => {
+              el.remove();
+            }, handle);
+            await page.waitForTimeout(500);
+            await handle.dispose();
+          }
+        }
+
+        // Manipulate styles before screenshotting.
+        // for (const selector of Object.keys(changeStyles)) {
+        //   const handles = await page.$$(selector);
+        //   for (const handle of handles) {
+        //     await page.evaluateHandle(el => {
+        //       const changeStyles = window.changeStyles();
+        //       for (const [selector, style] of Object.entries(changeStyles)) {
+        //         if (!el.matches(selector)) {
+        //           continue;
+        //         }
+
+        //         for (const [prop, val] of Object.entries(style)) {
+        //           el.style[prop] = val;
+        //         }
+        //       }
+        //     }, handle);
+        //     await handle.dispose();
+        //   }
+        // }
+        await page.waitForTimeout(300);
+
         await page.screenshot({ path: `dist/${site.name}/${size.width}x${size.height}/${routeToName(p)}.png`, fullPage: true });
       }
     }
@@ -43,7 +88,7 @@ let websites = [
 })();
 
 function routeToName(r) {
-  r = r.replace(/\//g, '_');
+  r = r.replace(/\?/g, '_');
   r = r.slice(1);
   if (r === '') {
     r = 'index';
